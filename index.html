@@ -805,8 +805,24 @@
           rows2.forEach(([label, value]) => details.appendChild(makeRow(label, value)));
         }
 
-        const footer = document.createElement('div');
+                const footer = document.createElement('div');
         footer.className = 'item-footer';
+
+        // Button für technisches Merkblatt
+        const tbBtn = document.createElement('a');
+        tbBtn.className = 'tb-btn';
+        tbBtn.textContent = 'Technisches Merkblatt öffnen';
+
+        // Produktname als Suchbegriff nehmen und in die Zwischenablage kopieren
+        const fullName = (item.name || '').toString().trim();
+        if (navigator.clipboard && fullName) {
+          navigator.clipboard.writeText(fullName).catch(() => {});
+        }
+
+        // PCI-Downloadseite öffnen
+        tbBtn.href = 'https://www.pci-augsburg.eu/de/services/downloads/technische-merkblaetter';
+        tbBtn.target = '_blank';
+        tbBtn.rel = 'noopener noreferrer';
 
         const addBtn = document.createElement('button');
         addBtn.className = 'add-btn';
@@ -820,6 +836,8 @@
           toggleSelection(item);
         });
 
+        // Erst Merkblatt-Button, dann „Zur Liste“
+        footer.appendChild(tbBtn);
         footer.appendChild(addBtn);
 
         header.appendChild(main);
