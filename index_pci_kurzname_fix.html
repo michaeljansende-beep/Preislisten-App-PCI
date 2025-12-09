@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Preisauskunft PCI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #f5f5f7;
+      padding: 16px;
+      color: #222;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto 40px auto;
+    }
+
+    header {
+      background: #f57c00;
+      color: #fff;
+      padding: 16px 20px;
+      border-radius: 14px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .search-row input[type="search"] {
+      flex: 1 1 260px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-row select {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      border: 1px solid #ececec;
+    }
+
+    .panel-header {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #444;
+    }
+
+    .panel-subline {
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 6px;
+    }
+
+    .summary-lines {
+      font-size: 13px;
+      line-height: 1.45;
+      margin-bottom: 10px;
+      white-space: pre-line;
+    }
+
+    .discount-price {
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ffe0b2;
+      color: #bf360c;
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+    .discount-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .discount-row input[type="range"] {
+      flex: 1;
+    }
+
+    .discount-value {
+      font-size: 13px;
+      font-weight: 600;
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      padding: 6px 11px;
+      font-size: 12px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #f57c00;
+      color: #fff;
+      border-color: #f57c00;
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: #555;
+    }
+
+    .list-count {
+      font-size: 12px;
+      color: #777;
+      margin-top: 5px;
+    }
+
+    .article-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .article-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 10px 12px 12px;
+      border: 1px solid #ececec;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    .article-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .article-number {
+      color: #444;
+    }
+
+    .article-name {
+      font-weight: 500;
+      color: #333;
+      margin-top: 2px;
+    }
+
+    .article-meta {
+      font-size: 11px;
+      color: #777;
+    }
+
+    .article-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .badge-price {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ffe0b2;
+      color: #bf360c;
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>Preisauskunft PCI</header>
+
+    <div class="search-row">
+      <input
+        type="search"
+        id="searchInput"
+        placeholder="Suche nach Artikelnummer oder Teilen des Artikelnamens..."
+      />
+      <select id="bereichFilter">
+        <option value="">Alle Bereiche</option>
+      </select>
+    </div>
+
+    <section class="panel" id="selectionPanel">
+      <div class="panel-header">Ausgewählte Artikel</div>
+      <div class="panel-subline">
+        Suche nach Artikelnummer oder Artikelnamen. Tippe auf einen Artikel, um ihn zur Auswahlliste hinzuzufügen.
+      </div>
+
+      <div id="selectionSummary" class="summary-lines">
+        Noch keine Artikel ausgewählt.
+      </div>
+
+      <div id="discountPriceLine" class="summary-lines"></div>
+
+      <div class="discount-row">
+        <input type="range" id="discountSlider" min="0" max="50" step="1" value="0" />
+        <div class="discount-value" id="discountLabel">Rabatt: 0 %</div>
+      </div>
+
+      <div class="panel-actions">
+        <button class="btn btn-primary" id="btnTextExport">Text-Export</button>
+        <button class="btn btn-outline" id="btnPdfPreview">PDF-Vorschau</button>
+        <button class="btn btn-outline" id="btnClear">Liste leeren</button>
+      </div>
+
+      <div class="list-count" id="selectionCount">0 Artikel</div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header" id="articleCountHeader">0 Artikel gefunden</div>
+      <div class="article-list" id="articleList"></div>
+    </section>
+  </div>
+
+  <script>
+    function getShortName(fullName) {
+      if (!fullName) return "";
+      let name = fullName.trim();
+
+      if (name.toUpperCase().startsWith("PCI ")) {
+        name = name.substring(4).trim();
+      }
+
+      const parts = name.split(/\s+/);
+      const units = ["kg", "KG", "l", "L", "ml", "ML"];
+
+      if (parts.length >= 2 && units.includes(parts[parts.length - 1])) {
+        const maybeNumber = parts[parts.length - 2];
+        if (/^[0-9]+([.,][0-9]+)?$/.test(maybeNumber)) {
+          parts.splice(parts.length - 2, 2);
+        }
+      }
+
+      return parts.join(" ");
+    }
+
+    const ARTICLES = [
+      {
+        number: "50954824",
+        name: "PCI FT Extra 25 kg",
+        unit: "KG",
+        priceNetPerUnit: 0.96,
+        Bereich: "KG",
+      },
+      {
+        number: "51646527",
+        name: "PCI FT Fugenbreit zementgrau 25 kg",
+        unit: "KG",
+        priceNetPerUnit: 1.21,
+        Bereich: "KG",
+      },
+      {
+        number: "51646580",
+        name: "PCI FT Fugenbreit zementgrau 25 kg",
+        unit: "KG",
+        priceNetPerUnit: 1.82,
+        Bereich: "KG",
+      }
+    ];
+
+    let filteredArticles = [...ARTICLES];
+    let selectedArticles = [];
+    let currentDiscount = 0;
+
+    const searchInput = document.getElementById("searchInput");
+    const bereichFilter = document.getElementById("bereichFilter");
+    const articleListEl = document.getElementById("articleList");
+    const articleCountHeader = document.getElementById("articleCountHeader");
+
+    const selectionSummaryEl = document.getElementById("selectionSummary");
+    const discountPriceLineEl = document.getElementById("discountPriceLine");
+    const selectionCountEl = document.getElementById("selectionCount");
+    const discountSlider = document.getElementById("discountSlider");
+    const discountLabel = document.getElementById("discountLabel");
+
+    const btnTextExport = document.getElementById("btnTextExport");
+    const btnPdfPreview = document.getElementById("btnPdfPreview");
+    const btnClear = document.getElementById("btnClear");
+
+    function formatPrice(value) {
+      return value.toFixed(2).replace(".", ",") + " €";
+    }
+
+    function updateFilterOptions() {
+      const bereiche = Array.from(new Set(ARTICLES.map(a => a.Bereich || ""))).filter(Boolean);
+      bereiche.sort();
+      bereiche.forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.textContent = b;
+        bereichFilter.appendChild(opt);
+      });
+    }
+
+    function applyFilter() {
+      const term = searchInput.value.trim().toLowerCase();
+      const bereich = bereichFilter.value;
+
+      filteredArticles = ARTICLES.filter(a => {
+        const matchBereich = !bereich || a.Bereich === bereich;
+        const text =
+          (a.number || "") +
+          " " +
+          (a.name || "") +
+          " " +
+          (a.unit || "") +
+          " " +
+          (a.Bereich || "");
+        const matchTerm = !term || text.toLowerCase().includes(term);
+        return matchBereich && matchTerm;
+      });
+
+      renderArticleList();
+    }
+
+    function renderArticleList() {
+      articleListEl.innerHTML = "";
+      articleCountHeader.textContent = filteredArticles.length + " Artikel gefunden";
+
+      filteredArticles.forEach(article => {
+        const shortName = getShortName(article.name || "");
+
+        const card = document.createElement("div");
+        card.className = "article-card";
+
+        const header = document.createElement("div");
+        header.className = "article-header";
+
+        const left = document.createElement("div");
+        const numberEl = document.createElement("div");
+        numberEl.className = "article-number";
+        numberEl.textContent = article.number;
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "article-name";
+        nameEl.textContent = article.name;
+
+        left.appendChild(numberEl);
+        left.appendChild(nameEl);
+
+        const right = document.createElement("div");
+        right.className = "badge-price";
+        right.textContent = "Nettopreis ab 1 VE: " + formatPrice(article.priceNetPerUnit);
+
+        header.appendChild(left);
+        header.appendChild(right);
+
+        const meta = document.createElement("div");
+        meta.className = "article-meta";
+        meta.textContent =
+          shortName + " wird beim Öffnen kopiert – bitte auf der PCI-Seite einfügen.";
+
+        const actions = document.createElement("div");
+        actions.className = "article-actions";
+
+        const btnMerkblatt = document.createElement("button");
+        btnMerkblatt.className = "btn btn-outline";
+        btnMerkblatt.textContent = "Technisches Merkblatt öffnen";
+        btnMerkblatt.addEventListener("click", () => {
+          navigator.clipboard.writeText(shortName).catch(() => {});
+          alert('In Zwischenablage kopiert: "' + shortName + '"');
+        });
+
+        const btnAdd = document.createElement("button");
+        btnAdd.className = "btn btn-primary";
+        btnAdd.textContent = "Zur Liste";
+        btnAdd.addEventListener("click", () => addArticleToSelection(article));
+
+        actions.appendChild(btnMerkblatt);
+        actions.appendChild(btnAdd);
+
+        card.appendChild(header);
+        card.appendChild(meta);
+        card.appendChild(actions);
+
+        articleListEl.appendChild(card);
+      });
+    }
+
+    function addArticleToSelection(article) {
+      const already = selectedArticles.find(a => a.number === article.number);
+      if (!already) {
+        selectedArticles.push(article);
+        updateSelectionSummary();
+      }
+    }
+
+    function clearSelection() {
+      selectedArticles = [];
+      updateSelectionSummary();
+    }
+
+    function updateSelectionSummary() {
+      if (selectedArticles.length === 0) {
+        selectionSummaryEl.textContent = "Noch keine Artikel ausgewählt.";
+        discountPriceLineEl.innerHTML = "";
+        selectionCountEl.textContent = "0 Artikel";
+        return;
+      }
+
+      const lines = [];
+      let sumNet = 0;
+
+      selectedArticles.forEach(a => {
+        const line =
+          (a.number || "") +
+          " · " +
+          (a.name || "") +
+          " · Nettopreis 1 VE: " +
+          formatPrice(a.priceNetPerUnit);
+        lines.push(line);
+        sumNet += a.priceNetPerUnit;
+      });
+
+      selectionSummaryEl.textContent = lines.join("\n");
+
+      const discountFactor = (100 - currentDiscount) / 100;
+      const discountedTotal = sumNet * discountFactor;
+
+      discountPriceLineEl.innerHTML = "";
+
+      const sumDiv = document.createElement("div");
+      sumDiv.textContent = "Summe netto: " + formatPrice(sumNet);
+      discountPriceLineEl.appendChild(sumDiv);
+
+      const rowDiv = document.createElement("div");
+      rowDiv.textContent = "Rabatt " + currentDiscount + " % →";
+
+      const span = document.createElement("span");
+      span.className = "discount-price";
+      span.textContent = formatPrice(discountedTotal);
+
+      rowDiv.appendChild(span);
+      discountPriceLineEl.appendChild(rowDiv);
+
+      selectionCountEl.textContent =
+        selectedArticles.length + (selectedArticles.length === 1 ? " Artikel" : " Artikel");
+    }
+
+    function handleDiscountChange() {
+      currentDiscount = parseInt(discountSlider.value, 10) || 0;
+      discountLabel.textContent = "Rabatt: " + currentDiscount + " %";
+      updateSelectionSummary();
+    }
+
+    function buildTextExport() {
+      if (selectedArticles.length === 0) return "";
+
+      const lines = [];
+      lines.push("Preisauskunft PCI");
+      lines.push("");
+      selectedArticles.forEach(a => {
+        lines.push(
+          a.number +
+            " - " +
+            a.name +
+            " (Nettopreis 1 VE: " +
+            formatPrice(a.priceNetPerUnit) +
+            ")"
+        );
+      });
+
+      const sumNet = selectedArticles.reduce((s, a) => s + a.priceNetPerUnit, 0);
+      const discountFactor = (100 - currentDiscount) / 100;
+      const discountedTotal = sumNet * discountFactor;
+
+      lines.push("");
+      lines.push("Summe netto: " + formatPrice(sumNet));
+      lines.push("Rabatt: " + currentDiscount + " %");
+      lines.push("Summe nach Rabatt: " + formatPrice(discountedTotal));
+
+      return lines.join("\n");
+    }
+
+    searchInput.addEventListener("input", applyFilter);
+    bereichFilter.addEventListener("change", applyFilter);
+    discountSlider.addEventListener("input", handleDiscountChange);
+
+    btnClear.addEventListener("click", () => {
+      clearSelection();
+    });
+
+    btnTextExport.addEventListener("click", () => {
+      const text = buildTextExport();
+      if (!text) return;
+      navigator.clipboard
+        .writeText(text)
+        .then(() => alert("Text-Export wurde in die Zwischenablage kopiert."))
+        .catch(() => alert("Konnte nicht in die Zwischenablage schreiben."));
+    });
+
+    btnPdfPreview.addEventListener("click", () => {
+      const text = buildTextExport();
+      if (!text) return;
+      const win = window.open("", "_blank");
+      win.document.write("<pre>" + text.replace(/</g, "&lt;") + "</pre>");
+      win.document.close();
+    });
+
+    updateFilterOptions();
+    applyFilter();
+    handleDiscountChange();
+    updateSelectionSummary();
+  </script>
+</body>
+</html>
